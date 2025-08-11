@@ -18,10 +18,11 @@
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write .",
     "prisma:generate": "prisma generate",
-    "prisma:migrate:dev": "prisma migrate dev --name init",
+  "prisma:migrate:dev": "prisma migrate dev --name init",
   "typecheck": "tsc -b || true",
   "gen:openapi:user": "node -e \"const {generateOpenApiJson}=require('api-schemas');const fs=require('fs');fs.writeFileSync('services/user-service/openapi.gen.json',generateOpenApiJson());console.log('User OpenAPI generated');\"",
-  "perf:baseline": "k6 run perf/k6-baseline.js"
+  "perf:baseline": "k6 run perf/k6-baseline.js",
+  "diagram:generate": "mmdc -i ops/docs/diagrams/system-architecture.mmd -o ops/docs/diagrams/system-architecture.svg && mmdc -i ops/docs/diagrams/system-architecture.mmd -o ops/docs/diagrams/system-architecture.png"
   },
   "devDependencies": {
     "concurrently": "^9.0.1",
@@ -32,8 +33,10 @@
     "@typescript-eslint/eslint-plugin": "^8.8.0",
     "eslint": "^9.10.0",
     "eslint-plugin-import": "^2.29.1",
-    "prettier": "^3.3.3",
-    "prisma": "^5.19.0"
+  "prettier": "^3.3.3",
+  "prisma": "^5.19.0",
+  "@mermaid-js/mermaid-cli": "^10.9.1",
+  "puppeteer": "^21.11.0"
   },
   "dependencies": {
     "@prisma/client": "^5.19.0"

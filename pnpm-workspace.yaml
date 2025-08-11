@@ -3,3 +3,6 @@ packages:
   - libs/*
   - frontend
   - backend
+
+onlyBuiltDependencies:
+  - puppeteer

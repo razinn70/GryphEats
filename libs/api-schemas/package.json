@@ -5,7 +5,7 @@
   "type": "commonjs",
   "dependencies": {
     "zod": "^3.23.8",
-    "zod-openapi": "^2.24.0"
+    "zod-openapi": "^5.3.1"
   },
   "devDependencies": {
     "@types/node": "^22.7.5"

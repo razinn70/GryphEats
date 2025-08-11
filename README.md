@@ -48,7 +48,14 @@ backend/            # (Legacy Express + Mongo - will be decomposed)
 5. Replace legacy backend with new services gradually
 
 ## ADRs
-See `ops/adr/` for decision history. Use `template.md` for new entries.
+
+| ID | Title | Status | Summary |
+|----|-------|--------|---------|
+| 0001 | Monorepo Structure | Accepted | Uses PNPM workspaces for services, libs, infra. |
+| 0002 | API Gateway Pattern | Accepted | Centralized ingress with routing, auth, observability. |
+| 0003 | Database & Sharding Strategy | Proposed | Start single Postgres; plan functional sharding by user/recipe. |
+
+See `ops/adr/` for full records. Use `ops/adr/template.md` for new entries.
 
 ## Contributing
 1. Create feature branch
