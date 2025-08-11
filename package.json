@@ -1,0 +1,27 @@
+{
+  "name": "campus-recipe-platform",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Monorepo for campus recipe & meal planning platform (gateway + microservices + frontend)",
+  "workspaces": [
+    "services/*",
+    "libs/*",
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev:gateway": "pnpm --filter api-gateway dev",
+    "dev:user": "pnpm --filter user-service dev",
+    "dev:recipe": "pnpm --filter recipe-service dev",
+    "dev:all": "concurrently \"pnpm dev:gateway\" \"pnpm dev:user\" \"pnpm dev:recipe\"",
+    "build": "echo build aggregation placeholder (use turborepo later)",
+    "lint": "echo lint placeholder",
+    "typecheck": "tsc -b || true"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1",
+    "typescript": "^5.6.3",
+    "ts-node": "^10.9.2",
+    "@types/node": "^22.7.5"
+  }
+}

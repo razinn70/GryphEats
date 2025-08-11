@@ -1,0 +1,60 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: recipes
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+  jaeger:
+    image: jaegertracing/all-in-one:1.57
+    container_name: jaeger
+    ports:
+      - "16686:16686"
+      - "4317:4317" # OTLP gRPC
+  api-gateway:
+    build: ../services/api-gateway
+    depends_on:
+      - user-service
+      - recipe-service
+    environment:
+      GATEWAY_PORT: 4000
+      USER_SERVICE_URL: http://user-service:4001
+      RECIPE_SERVICE_URL: http://recipe-service:4002
+    ports:
+      - "4000:4000"
+  user-service:
+    build: ../services/user-service
+    environment:
+      PORT: 4001
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/recipes
+    depends_on:
+      - postgres
+  recipe-service:
+    build: ../services/recipe-service
+    environment:
+      PORT: 4002
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/recipes
+    depends_on:
+      - postgres
+volumes:
+  pgdata:
