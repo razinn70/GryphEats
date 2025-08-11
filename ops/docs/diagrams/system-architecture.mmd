@@ -1,0 +1,24 @@
+%% Mermaid source for system architecture
+graph LR
+  Client[Web / Future Mobile] --> Gateway[API Gateway]
+  Gateway --> UserSvc[User Service]
+  Gateway --> RecipeSvc[Recipe Service]
+  Gateway --> SocialSvc[Social Service]
+  Gateway --> RecSvc[Recommendation Service]
+  Gateway --> NotifSvc[Notification Service]
+  RecipeSvc --> Postgres[(PostgreSQL)]
+  UserSvc --> Postgres
+  SocialSvc --> Postgres
+  RecSvc --> Postgres
+  NotifSvc --> Postgres
+  Gateway --> Redis[(Redis Cache)]
+  RecipeSvc --> ES[(Elasticsearch)]
+  subgraph Observability
+    Jaeger
+  end
+  Gateway --> Jaeger
+  UserSvc --> Jaeger
+  RecipeSvc --> Jaeger
+  SocialSvc --> Jaeger
+  RecSvc --> Jaeger
+  NotifSvc --> Jaeger
