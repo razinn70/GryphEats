@@ -36,10 +36,16 @@ services:
     depends_on:
       - user-service
       - recipe-service
+  - social-service
+  - recommendation-service
+  - notification-service
     environment:
       GATEWAY_PORT: 4000
       USER_SERVICE_URL: http://user-service:4001
       RECIPE_SERVICE_URL: http://recipe-service:4002
+  SOCIAL_SERVICE_URL: http://social-service:4003
+  RECOMMENDATION_SERVICE_URL: http://recommendation-service:4004
+  NOTIFICATION_SERVICE_URL: http://notification-service:4005
     ports:
       - "4000:4000"
   user-service:
@@ -53,6 +59,27 @@ services:
     build: ../services/recipe-service
     environment:
       PORT: 4002
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/recipes
+    depends_on:
+      - postgres
+  social-service:
+    build: ../services/social-service
+    environment:
+      PORT: 4003
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/recipes
+    depends_on:
+      - postgres
+  recommendation-service:
+    build: ../services/recommendation-service
+    environment:
+      PORT: 4004
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/recipes
+    depends_on:
+      - postgres
+  notification-service:
+    build: ../services/notification-service
+    environment:
+      PORT: 4005
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/recipes
     depends_on:
       - postgres

@@ -3,6 +3,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { createProxyMiddleware } from 'http-proxy-middleware';
+import jwt from 'jsonwebtoken';
 
 dotenv.config();
 
@@ -22,9 +23,23 @@ app.use((req, _res, next) => {
   next();
 });
 
+// Initialize tracing (lazy) if TRACE_ENABLED
+if (process.env.TRACE_ENABLED) {
+  try { await (async () => { const { initTracing } = await import('tracing/src/index.js'); initTracing('api-gateway'); })(); } catch (e) { console.warn('Tracing init failed', e); }
+}
+
 // Auth verification placeholder (later: verify JWT, attach user)
 app.use((req, _res, next) => {
-  // TODO: decode JWT if present and set req.user
+  const auth = req.headers.authorization;
+  if (auth && auth.startsWith('Bearer ')) {
+    const token = auth.slice(7);
+    try {
+      const payload = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret');
+      (req as any).user = payload;
+    } catch (e) {
+      // ignore invalid token for now; future: respond 401 for protected paths
+    }
+  }
   next();
 });
 
