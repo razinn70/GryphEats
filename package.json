@@ -19,7 +19,9 @@
     "format": "prettier --write .",
     "prisma:generate": "prisma generate",
     "prisma:migrate:dev": "prisma migrate dev --name init",
-    "typecheck": "tsc -b || true"
+  "typecheck": "tsc -b || true",
+  "gen:openapi:user": "node -e \"const {generateOpenApiJson}=require('api-schemas');const fs=require('fs');fs.writeFileSync('services/user-service/openapi.gen.json',generateOpenApiJson());console.log('User OpenAPI generated');\"",
+  "perf:baseline": "k6 run perf/k6-baseline.js"
   },
   "devDependencies": {
     "concurrently": "^9.0.1",

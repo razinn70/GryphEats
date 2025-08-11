@@ -1,22 +1,19 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import { Pool } from 'pg';
+import { PrismaClient } from '@prisma/client';
 
 dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
+const prisma = new PrismaClient();
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgres://postgres:postgres@postgres:5432/recipes'
-});
-
-app.get('/healthz', async (_req, res) => {
+app.get('/healthz', async (_req: Request, res: Response) => {
   try {
-    await pool.query('SELECT 1');
+    await prisma.$queryRaw`SELECT 1`;
     res.json({ status: 'ok', service: 'recipe-service' });
   } catch (e) {
     res.status(500).json({ status: 'error', error: (e as Error).message });
@@ -24,8 +21,13 @@ app.get('/healthz', async (_req, res) => {
 });
 
 // Placeholder route
-app.get('/', (_req, res) => {
-  res.json({ recipes: [], message: 'Recipe service stub' });
+app.get('/', async (_req: Request, res: Response) => {
+  try {
+    const recipes = await prisma.recipe.findMany({ take: 20, orderBy: { createdAt: 'desc' } });
+    res.json({ recipes });
+  } catch (e) {
+    res.status(500).json({ error: (e as Error).message });
+  }
 });
 
 const port = process.env.PORT || 4002;

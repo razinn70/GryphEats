@@ -9,6 +9,11 @@ services:
       POSTGRES_DB: recipes
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     volumes:
       - pgdata:/var/lib/postgresql/data
   redis:
@@ -16,6 +21,11 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
     container_name: elasticsearch
@@ -25,6 +35,11 @@ services:
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
     ports:
       - "9200:9200"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200 >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
   jaeger:
     image: jaegertracing/all-in-one:1.57
     container_name: jaeger
@@ -33,19 +48,25 @@ services:
       - "4317:4317" # OTLP gRPC
   api-gateway:
     build: ../services/api-gateway
-    depends_on:
-      - user-service
-      - recipe-service
-  - social-service
-  - recommendation-service
-  - notification-service
     environment:
       GATEWAY_PORT: 4000
       USER_SERVICE_URL: http://user-service:4001
       RECIPE_SERVICE_URL: http://recipe-service:4002
-  SOCIAL_SERVICE_URL: http://social-service:4003
-  RECOMMENDATION_SERVICE_URL: http://recommendation-service:4004
-  NOTIFICATION_SERVICE_URL: http://notification-service:4005
+      SOCIAL_SERVICE_URL: http://social-service:4003
+      RECOMMENDATION_SERVICE_URL: http://recommendation-service:4004
+      NOTIFICATION_SERVICE_URL: http://notification-service:4005
+      JWT_SECRET: dev-secret
+    depends_on:
+      user-service:
+        condition: service_healthy
+      recipe-service:
+        condition: service_healthy
+      social-service:
+        condition: service_healthy
+      recommendation-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
     ports:
       - "4000:4000"
   user-service:
@@ -53,35 +74,51 @@ services:
     environment:
       PORT: 4001
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/recipes
+      JWT_SECRET: dev-secret
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e 'fetch(`http://localhost:4001/healthz`).then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
   recipe-service:
     build: ../services/recipe-service
     environment:
       PORT: 4002
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/recipes
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e 'fetch(`http://localhost:4002/healthz`).then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
   social-service:
     build: ../services/social-service
     environment:
       PORT: 4003
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/recipes
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
   recommendation-service:
     build: ../services/recommendation-service
     environment:
       PORT: 4004
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/recipes
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
   notification-service:
     build: ../services/notification-service
     environment:
       PORT: 4005
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/recipes
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 volumes:
   pgdata:

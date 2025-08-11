@@ -1,0 +1,13 @@
+{
+  "name": "api-schemas",
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "type": "commonjs",
+  "dependencies": {
+    "zod": "^3.23.8",
+    "zod-openapi": "^2.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.5"
+  }
+}
